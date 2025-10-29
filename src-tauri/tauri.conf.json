@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/v1/schema.json",
+  "build": {
+    "beforeDevCommand": "vite dev",
+    "beforeBuildCommand": "vite build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "Zen PDF",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "title": "Zen PDF",
+        "width": 1280,
+        "height": 800
+      }
+    ],
+    "allowlist": {
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "dialog": {
+        "all": true
+      },
+      "fs": {
+        "all": false,
+        "writeFile": true,
+        "readFile": true,
+        "scope": [
+          "**/*"
+        ]
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": [
+        "app",
+        "dmg"
+      ],
+      "identifier": "com.example.zenpdf",
+      "macOS": {
+        "signingIdentity": "Developer ID Application: Your Company (TEAMID)"
+      }
+    },
+    "security": {
+      "csp": null
+    }
+  }
+}

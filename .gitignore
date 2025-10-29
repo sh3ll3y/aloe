@@ -1,0 +1,17 @@
+.local-node/
+node_modules/
+dist/
+src-tauri/target/
+
+# macOS and packaged artifacts
+.DS_Store
+*.zip
+*.dmg
+*.app
+*.pkg
+
+# Logs and caches
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

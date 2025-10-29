@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --aloe-background: #f5fbf7;
+  --aloe-background-alt: #ecf8ff;
+  --aloe-surface: #ffffff;
+  --aloe-surface-muted: #f1fdf7;
+  --aloe-border: #b7ead5;
+  --aloe-border-strong: #93dcbd;
+  --aloe-primary: #1fbd7a;
+  --aloe-primary-strong: #0a9b5f;
+  --aloe-primary-soft: #d3f7e8;
+  --aloe-accent: #3aa7ff;
+  --aloe-accent-soft: #e6f3ff;
+  --aloe-danger: #f9706f;
+  --aloe-danger-strong: #e14c4b;
+  --aloe-text-primary: #073b2c;
+  --aloe-text-secondary: #2d6f58;
+  --aloe-text-muted: #5d8d7d;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-image: radial-gradient(circle at 18% 20%, rgba(79, 215, 165, 0.65) 0, rgba(79, 215, 165, 0) 62%),
+    radial-gradient(circle at 80% 75%, rgba(57, 185, 133, 0.4) 0, rgba(57, 185, 133, 0) 60%),
+    linear-gradient(180deg, var(--aloe-background) 0%, #ffffff 100%);
+  background-color: var(--aloe-background);
+  color: var(--aloe-text-primary);
+}
+
+code {
+  font-family: 'Fira Code', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+}
