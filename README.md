@@ -30,7 +30,11 @@ Note for macOS signing: the Tauri config sets a placeholder signing identity. To
   - Rust (stable) and Node.js 18+ with npm
   - System packages
     - Debian/Ubuntu: `sudo apt update && sudo apt install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf`
+      - If `libwebkit2gtk-4.1-dev` isn’t available, try `libwebkit2gtk-4.0-dev`.
+      - If `libayatana-appindicator3-dev` isn’t available, try `libappindicator3-dev`.
     - Arch: `sudo pacman -S --needed webkit2gtk gtk3 libappindicator-gtk3 librsvg patchelf`
+    - Fedora: `sudo dnf install -y webkit2gtk3-devel gtk3-devel libappindicator-gtk3 librsvg2-devel patchelf`
+    - openSUSE: `sudo zypper install -y webkit2gtk3-devel gtk3-devel libappindicator3-gtk3 librsvg-devel patchelf`
 - Develop
   - `npm run dev`
 - Build bundles
@@ -38,6 +42,14 @@ Note for macOS signing: the Tauri config sets a placeholder signing identity. To
   - Outputs land under `src-tauri/target/release/bundle/`
 - Notes
   - The `dmg` bundle target in `tauri.conf.json` is macOS-only and ignored on Linux. Pass Linux bundles explicitly as above.
+  - AppImage portability depends on glibc; for widest compatibility, build on the oldest distro/version you intend to support.
+  - ARM/aarch64 is supported if the matching system packages are available. Prefer building on the target architecture.
+
+#### Troubleshooting (Linux)
+
+- error while loading shared libraries: libwebkit2gtk-4.1.so.0 — install WebKitGTK runtime/dev packages (see above; may be 4.0 on some distros).
+- patchelf: command not found — install `patchelf` using your distro’s package manager.
+- Blank or failing window on start — ensure `webkit2gtk` and `gtk3` are installed; try launching from a terminal to see errors.
 
 ### Cross‑arch macOS
 
