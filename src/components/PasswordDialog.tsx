@@ -58,18 +58,10 @@ export function PasswordDialog({ isOpen, fileName, message, onSubmit, onCancel }
             </label>
           </div>
           <div className="mt-2 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="rounded-full border border-[var(--aloe-border)] px-3 py-1.5 text-sm font-semibold text-[var(--aloe-text-secondary)] transition hover:bg-[var(--aloe-primary-soft)]"
-            >
+            <button type="button" onClick={onCancel} className="btn-neu btn-neu--sm">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="rounded-full bg-[var(--aloe-primary)] px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--aloe-primary-strong)] disabled:opacity-60"
-              disabled={!password}
-            >
+            <button type="submit" className="btn-neu btn-neu--sm disabled:opacity-60" disabled={!password}>
               Unlock
             </button>
           </div>
@@ -78,4 +70,3 @@ export function PasswordDialog({ isOpen, fileName, message, onSubmit, onCancel }
     </div>
   );
 }
-

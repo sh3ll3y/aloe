@@ -8,14 +8,14 @@
   },
   "package": {
     "productName": "Zen PDF",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "tauri": {
     "windows": [
       {
         "title": "Zen PDF",
         "width": 1280,
-        "height": 800
+        "height": 910
       }
     ],
     "allowlist": {
@@ -41,10 +41,63 @@
         "app",
         "dmg"
       ],
-      "identifier": "com.example.zenpdf",
+      "identifier": "com.griffoncrest.zenpdf",
       "macOS": {
-        "signingIdentity": "Developer ID Application: Your Company (TEAMID)"
-      }
+        "signingIdentity": "Developer ID Application: Griffoncrest LLP (SX2G3GS468)"
+      },
+      "externalBin": [
+        "bin/macos-arm64/tesseract",
+        "bin/macos-arm64/libarchive.13.dylib",
+        "bin/macos-arm64/libarchive.dylib",
+        "bin/macos-arm64/libb2.1.dylib",
+        "bin/macos-arm64/libb2.dylib",
+        "bin/macos-arm64/libgif.7.2.0.dylib",
+        "bin/macos-arm64/libgif.7.dylib",
+        "bin/macos-arm64/libgif.dylib",
+        "bin/macos-arm64/libjpeg.8.3.2.dylib",
+        "bin/macos-arm64/libjpeg.8.dylib",
+        "bin/macos-arm64/libjpeg.dylib",
+        "bin/macos-arm64/libleptonica.6.dylib",
+        "bin/macos-arm64/libleptonica.dylib",
+        "bin/macos-arm64/liblz4.1.10.0.dylib",
+        "bin/macos-arm64/liblz4.1.dylib",
+        "bin/macos-arm64/liblz4.dylib",
+        "bin/macos-arm64/liblzma.5.dylib",
+        "bin/macos-arm64/liblzma.dylib",
+        "bin/macos-arm64/libopenjp2.2.5.3.dylib",
+        "bin/macos-arm64/libopenjp2.7.dylib",
+        "bin/macos-arm64/libopenjp2.dylib",
+        "bin/macos-arm64/libpng.dylib",
+        "bin/macos-arm64/libpng16.16.dylib",
+        "bin/macos-arm64/libpng16.dylib",
+        "bin/macos-arm64/libtesseract.5.dylib",
+        "bin/macos-arm64/libtesseract.dylib",
+        "bin/macos-arm64/libtiff.6.dylib",
+        "bin/macos-arm64/libtiff.dylib",
+        "bin/macos-arm64/libtiffxx.6.dylib",
+        "bin/macos-arm64/libtiffxx.dylib",
+        "bin/macos-arm64/libwebp.7.1.10.dylib",
+        "bin/macos-arm64/libwebp.7.dylib",
+        "bin/macos-arm64/libwebp.dylib",
+        "bin/macos-arm64/libwebpdecoder.3.1.10.dylib",
+        "bin/macos-arm64/libwebpdecoder.3.dylib",
+        "bin/macos-arm64/libwebpdecoder.dylib",
+        "bin/macos-arm64/libwebpdemux.2.0.16.dylib",
+        "bin/macos-arm64/libwebpdemux.2.dylib",
+        "bin/macos-arm64/libwebpdemux.dylib",
+        "bin/macos-arm64/libwebpmux.3.1.1.dylib",
+        "bin/macos-arm64/libwebpmux.3.dylib",
+        "bin/macos-arm64/libwebpmux.dylib",
+        "bin/macos-arm64/libsharpyuv.0.1.1.dylib",
+        "bin/macos-arm64/libsharpyuv.0.dylib",
+        "bin/macos-arm64/libsharpyuv.dylib",
+        "bin/macos-arm64/libzstd.1.5.7.dylib",
+        "bin/macos-arm64/libzstd.1.dylib",
+        "bin/macos-arm64/libzstd.dylib"
+      ],
+      "resources": [
+        "resources/tessdata"
+      ]
     },
     "security": {
       "csp": null

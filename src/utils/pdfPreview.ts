@@ -60,7 +60,7 @@ export async function renderPagePreview(
   pdfData: PdfBinary,
   pageIndex: number,
   targetWidth = DEFAULT_THUMBNAIL_WIDTH,
-  options: { password?: string } = {},
+  options: { password?: string; rotation?: number } = {},
 ): Promise<string> {
   ensureWorkerConfigured();
 
@@ -71,9 +71,10 @@ export async function renderPagePreview(
 
     const pdfDoc = await loadPdfDocument(pdfData, options.password);
     const page = await pdfDoc.getPage(pageIndex + 1);
-    const viewport = page.getViewport({ scale: 1 });
+    const rot = (((options.rotation ?? 0) % 360) + 360) % 360;
+    const viewport = page.getViewport({ scale: 1, rotation: rot });
     const scale = targetWidth / viewport.width;
-    const scaledViewport = page.getViewport({ scale });
+    const scaledViewport = page.getViewport({ scale, rotation: rot });
 
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -122,9 +123,9 @@ export async function renderPageBitmap(
   const pdfDoc = await loadPdfDocument(pdfData, password);
   const page = await pdfDoc.getPage(pageIndex + 1);
 
-  const baseViewport = page.getViewport({ scale: 1 });
+  const baseViewport = page.getViewport({ scale: 1, rotation: 0 });
   const scale = dpi / 72;
-  const scaledViewport = page.getViewport({ scale });
+  const scaledViewport = page.getViewport({ scale, rotation: 0 });
 
   // Render to offscreen canvas first
   const offscreen = document.createElement('canvas');
@@ -218,10 +219,10 @@ export async function validatePdfRenderable(pdfData: PdfBinary, password?: strin
   try {
     const doc = await loadPdfDocument(pdfData, password);
     const page = await doc.getPage(1);
-    const viewport = page.getViewport({ scale: 1 });
+    const viewport = page.getViewport({ scale: 1, rotation: 0 });
     const targetWidth = 40;
     const scale = Math.max(0.1, targetWidth / viewport.width);
-    const scaled = page.getViewport({ scale });
+    const scaled = page.getViewport({ scale, rotation: 0 });
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return true;
@@ -243,4 +244,171 @@ export async function validatePdfRenderable(pdfData: PdfBinary, password?: strin
     console.warn('PDF validation failed; treating as invalid', e);
     return false;
   }
+}
+
+// Extract plain text from a page using pdf.js. Returns an empty string if no text items are present.
+export async function extractPageText(
+  pdfData: PdfBinary,
+  pageIndex: number,
+  options: { password?: string } = {},
+): Promise<string> {
+  ensureWorkerConfigured();
+  const doc = await loadPdfDocument(pdfData, options.password);
+  const page = await doc.getPage(pageIndex + 1);
+  const textContent = await page.getTextContent();
+  const items: any[] = (textContent.items as any[]) || [];
+  const parts = items
+    .map((it) => (typeof it.str === 'string' ? it.str : ''))
+    .filter(Boolean);
+  const text = parts.join(' ').replace(/\s+/g, ' ').trim();
+  return text;
+}
+
+export interface TextRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export async function findTextRects(
+  pdfData: PdfBinary,
+  pageIndex: number,
+  query: string,
+  options: { password?: string; rotation?: number } = {},
+): Promise<{ rects: TextRect[]; pageWidth: number; pageHeight: number; groups?: TextRect[][] }> {
+  ensureWorkerConfigured();
+  const q = query.trim().toLowerCase();
+  const rects: TextRect[] = [];
+  const groups: TextRect[][] = [];
+  if (!q) return { rects, pageWidth: 0, pageHeight: 0 };
+
+  const doc = await loadPdfDocument(pdfData, options.password);
+  const page = await doc.getPage(pageIndex + 1);
+  const viewport = page.getViewport({ scale: 1, rotation: 0 });
+  const content: any = await page.getTextContent();
+  const items: any[] = (content.items as any[]) || [];
+  const styles: Record<string, any> = (content.styles as Record<string, any>) || {};
+
+  // Offscreen canvas for text measurement (to tighten rectangles)
+  const measureCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
+  const measureCtx = measureCanvas?.getContext('2d') || null;
+
+  // Build a global string and map each global char index to item + offset
+  const globalChars: Array<{ itemIndex: number; charOffset: number }> = [];
+  const itemText: string[] = [];
+  for (let i = 0; i < items.length; i += 1) {
+    const s: string = items[i]?.str ?? '';
+    itemText.push(s);
+    for (let c = 0; c < s.length; c += 1) {
+      globalChars.push({ itemIndex: i, charOffset: c });
+    }
+    // Insert a virtual space between items for searching across gaps
+    globalChars.push({ itemIndex: -1, charOffset: -1 });
+  }
+  const globalString = itemText.join(' ') + ' ';
+
+  let start = 0;
+  while (true) {
+    const idx = globalString.toLowerCase().indexOf(q, start);
+    if (idx === -1) break;
+    const end = idx + q.length;
+
+    // Collect rects spanning items for this match
+    let pos = idx;
+    const group: TextRect[] = [];
+    while (pos < end && pos < globalChars.length) {
+      // skip virtual separators
+      while (pos < end && globalChars[pos]?.itemIndex === -1) pos += 1;
+      if (pos >= end) break;
+      const first = globalChars[pos];
+      if (!first || first.itemIndex < 0) break;
+      const i = first.itemIndex;
+      const item = items[i];
+      const s: string = item?.str ?? '';
+      const tr: number[] = Array.isArray(item.transform) ? item.transform : [];
+      const x0 = typeof tr[4] === 'number' ? tr[4] : 0;
+      const yBase = typeof tr[5] === 'number' ? tr[5] : 0;
+      const fontH = typeof item?.height === 'number' ? Math.abs(item.height) : Math.abs(typeof tr[3] === 'number' ? tr[3] : 12);
+      const yTop = viewport.height - (yBase + fontH);
+      const width = typeof item?.width === 'number' ? item.width : (Math.max(s.length, 1) * (Math.abs(tr[0] || 10)) * 0.6);
+
+      // determine how many chars of this item belong to the match
+      let localStart = first.charOffset;
+      let localLen = 0;
+      let walker = pos;
+      while (walker < end && walker < globalChars.length && globalChars[walker]?.itemIndex === i) {
+        localLen += 1;
+        walker += 1;
+      }
+      // Tighten using canvas text metrics when available
+      let rx = x0;
+      let rw = width;
+      if (measureCtx && s.length > 0 && width > 0) {
+        try {
+          const fontName: string | undefined = item?.fontName;
+          const style = fontName ? styles[fontName] : undefined;
+          const family = style?.fontFamily || 'sans-serif';
+          const fontPx = Math.max(1, Math.floor(fontH));
+          measureCtx.font = `${fontPx}px ${family}`;
+          const fullW = measureCtx.measureText(s).width || 0;
+          const prefix = s.slice(0, localStart);
+          const substr = s.slice(localStart, localStart + localLen);
+          const prefixW = fullW > 0 ? measureCtx.measureText(prefix).width : 0;
+          const substrW = fullW > 0 ? measureCtx.measureText(substr).width : 0;
+          const ratioStart = fullW > 0 ? prefixW / fullW : (localStart / Math.max(s.length, 1));
+          const ratioWidth = fullW > 0 ? substrW / fullW : (localLen / Math.max(s.length, 1));
+          rx = x0 + ratioStart * width;
+          rw = Math.max(0.5, ratioWidth * width);
+        } catch {
+          const perChar = width / Math.max(s.length, 1);
+          rx = x0 + perChar * localStart;
+          rw = perChar * localLen;
+        }
+      } else {
+        const perChar = width / Math.max(s.length, 1);
+        rx = x0 + perChar * localStart;
+        rw = perChar * localLen;
+      }
+      const rect = { x: rx, y: yTop, width: rw, height: fontH };
+      rects.push(rect);
+      group.push(rect);
+      pos = walker;
+    }
+
+    if (group.length) groups.push(group);
+    start = end;
+  }
+
+  // Apply rotation mapping if requested so rects are returned in rotated coordinates
+  const rot = (((options.rotation ?? 0) % 360) + 360) % 360;
+  if (rot === 0) {
+    return { rects, pageWidth: viewport.width, pageHeight: viewport.height, groups };
+  }
+
+  const W = viewport.width;
+  const H = viewport.height;
+
+  function mapRect(r: TextRect): TextRect {
+    if (rot === 90) {
+      const x = H - (r.y + r.height);
+      const y = r.x;
+      return { x, y, width: r.height, height: r.width };
+    }
+    if (rot === 180) {
+      const x = W - (r.x + r.width);
+      const y = H - (r.y + r.height);
+      return { x, y, width: r.width, height: r.height };
+    }
+    // 270
+    const x = r.y;
+    const y = W - (r.x + r.width);
+    return { x, y, width: r.height, height: r.width };
+  }
+
+  const rotatedRects = rects.map(mapRect);
+  const rotatedGroups = groups.map((g) => g.map(mapRect));
+  const pageWidth = rot === 180 ? W : (rot === 0 ? W : H);
+  const pageHeight = rot === 180 ? H : (rot === 0 ? H : W);
+  return { rects: rotatedRects, pageWidth, pageHeight, groups: rotatedGroups };
 }

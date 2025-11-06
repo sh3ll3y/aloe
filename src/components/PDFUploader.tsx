@@ -17,12 +17,13 @@ export interface LoadedPdf {
 interface PDFUploaderProps {
   onLoad: (documents: LoadedPdf[]) => void | Promise<void>;
   multiple?: boolean;
+  variant?: 'full' | 'compact';
 }
 
 /**
  * Handles PDF selection from disk and loads ArrayBuffers for downstream use.
  */
-export function PDFUploader({ onLoad, multiple = true }: PDFUploaderProps) {
+export function PDFUploader({ onLoad, multiple = true, variant = 'full' }: PDFUploaderProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -181,31 +182,25 @@ export function PDFUploader({ onLoad, multiple = true }: PDFUploaderProps) {
     };
   }, [loadDocuments, multiple]);
 
+  if (variant === 'compact') {
+    return (
+      <div className="flex items-center gap-3">
+        <input ref={inputRef} type="file" accept="application/pdf" multiple={multiple} onChange={onChange} className="hidden" />
+        <button type="button" onClick={() => inputRef.current?.click()} className="btn-neu btn-neu--sm disabled:cursor-not-allowed disabled:opacity-60" disabled={isLoading}>
+          {isLoading ? 'Loading…' : 'Browse Files'}
+        </button>
+        {error ? <span className="text-xs text-[var(--aloe-danger)]">{error}</span> : null}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      <label
-        className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[var(--aloe-border)] bg-[var(--aloe-surface-muted)] p-6 text-center shadow-sm transition hover:border-[var(--aloe-primary)] hover:bg-[var(--aloe-primary-soft)]"
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-      >
+      <label className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[var(--aloe-border)] bg-[var(--aloe-surface-muted)] p-6 text-center shadow-sm transition hover:border-[var(--aloe-primary)] hover:bg-[var(--aloe-primary-soft)]" onDrop={onDrop} onDragOver={onDragOver}>
         <span className="text-base font-semibold text-[var(--aloe-text-primary)]">Upload PDFs</span>
-        <span className="text-sm text-[var(--aloe-text-muted)]">
-          Drag &amp; drop one or more PDF files here, or click to browse.
-        </span>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="application/pdf"
-          multiple={multiple}
-          onChange={onChange}
-          className="hidden"
-        />
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="rounded-full bg-[var(--aloe-primary)] px-5 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-[var(--aloe-primary-strong)] disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={isLoading}
-        >
+        <span className="text-sm text-[var(--aloe-text-muted)]">Drag &amp; drop one or more PDF files here, or click to browse.</span>
+        <input ref={inputRef} type="file" accept="application/pdf" multiple={multiple} onChange={onChange} className="hidden" />
+        <button type="button" onClick={() => inputRef.current?.click()} className="btn-neu btn-neu--md disabled:cursor-not-allowed disabled:opacity-60" disabled={isLoading}>
           {isLoading ? 'Loading…' : 'Browse Files'}
         </button>
       </label>

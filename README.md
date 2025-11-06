@@ -2,6 +2,19 @@
 
 Zen PDF is a lightweight, offline PDF editor built with Tauri and React. It lets you merge, split, reorder, rotate, compress, and export PDFs — locally on your machine with no network calls.
 
+## Features
+
+- Merge multiple PDFs into one document
+- Split by page ranges or into single‑page PDFs
+- Reorder pages via drag‑and‑drop and rotate per‑page
+- Compression presets for output size/quality trade‑offs
+- Export a single combined PDF or multiple PDFs (ZIP)
+- Themes for the UI (e.g., Default, Gruvbox, Tokyo Night, Catppuccin, Dracula)
+- Run OCR to make scanned PDFs searchable (desktop app)
+- Search across loaded pages (native + OCR text) with highlights and match navigation
+- Full page view and thumbnail grid view
+- Zoom in/out in the full page view
+
 ## Quick Start
 
 - Install dependencies: `npm install`
@@ -9,6 +22,10 @@ Zen PDF is a lightweight, offline PDF editor built with Tauri and React. It lets
 - Build a desktop app: `npm run build`
 
 Note for macOS signing: the Tauri config sets a placeholder signing identity. To produce signed binaries, replace the placeholder in `src-tauri/tauri.conf.json:46` with your own Apple Developer ID Application identity or remove the field to sign locally via your keychain settings.
+
+Notes
+
+- OCR is available in the desktop app. The macOS bundle includes the Tesseract runtime and English language data so OCR runs locally without network calls.
 
 ## Platform Builds
 

@@ -52,17 +52,10 @@ export function SplitDialog({ isOpen, onConfirm, onCancel }: SplitDialogProps) {
             className="w-full rounded-lg border border-[var(--aloe-border)] bg-[var(--aloe-surface-muted)] px-3 py-2 text-sm text-[var(--aloe-text-primary)] focus:border-[var(--aloe-primary)] focus:outline-none"
           />
           <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="rounded-full border border-[var(--aloe-border)] px-3 py-1.5 text-sm font-semibold text-[var(--aloe-text-secondary)] transition hover:bg-[var(--aloe-primary-soft)]"
-            >
+            <button type="button" onClick={onCancel} className="btn-neu btn-neu--sm">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="rounded-full bg-[var(--aloe-primary)] px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--aloe-primary-strong)]"
-            >
+            <button type="submit" className="btn-neu btn-neu--sm">
               Split
             </button>
           </div>

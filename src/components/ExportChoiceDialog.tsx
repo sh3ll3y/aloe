@@ -25,18 +25,10 @@ export function ExportChoiceDialog({ isOpen, onSingle, onSeparate, onClose }: Ex
           Multiple files are loaded or pages are split. Choose how to save your work.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            className="rounded-full bg-[var(--aloe-accent)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-95"
-            onClick={onSingle}
-          >
+          <button type="button" className="btn-neu btn-neu--sm" onClick={onSingle}>
             Save as Single Document
           </button>
-          <button
-            type="button"
-            className="rounded-full bg-[var(--aloe-primary)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--aloe-primary-strong)]"
-            onClick={onSeparate}
-          >
+          <button type="button" className="btn-neu btn-neu--sm" onClick={onSeparate}>
             Save PDFs Separately
           </button>
         </div>

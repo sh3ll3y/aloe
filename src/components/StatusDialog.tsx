@@ -14,11 +14,7 @@ export function StatusDialog({ isOpen, title = 'Notice', message, onClose, confi
         <h2 className="mb-2 text-lg font-semibold text-[var(--aloe-text-primary)]">{title}</h2>
         <p className="mb-4 text-sm text-[var(--aloe-text-muted)]">{message}</p>
         <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full bg-[var(--aloe-primary)] px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[var(--aloe-primary-strong)]"
-          >
+          <button type="button" onClick={onClose} className="btn-neu btn-neu--sm">
             {confirmLabel}
           </button>
         </div>
